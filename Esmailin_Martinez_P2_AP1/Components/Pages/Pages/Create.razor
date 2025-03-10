@@ -1,0 +1,54 @@
+﻿@page "/Modelo"
+@using Esmailin_Martinez_P2_AP1.Models
+@rendermode InteractiveServer
+@inject NavigationManager navigationManager
+
+<PageTitle>Create Modelo</PageTitle>
+
+<EditForm Model="modelo" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Crear Modelo</h5>
+            </div>
+            <div class="card-body">
+
+                <div class="mb-3 row">
+                    @*Id*@
+                    <div class="mb-3 col-5">
+                        <label class="form-label"><strong>Id</strong></label>
+                        <InputNumber class="form-control" @bind-Value="modelo.Id" readonly />
+                    </div>
+                    @*Fecha*@
+                    <div class="mb-3 col-3">
+                        <label class="form-label"><strong>Fecha</strong></label>
+                        <InputDate @bind-Value="date" class="form-control"></InputDate>
+                    </div>
+                </div>
+
+                @*Detalles*@
+                <div class="border border-success p-3 mt-3">
+                    <h5>Detalle</h5>
+                    <table class="table table-light">
+                        <thead class="table table-striped">
+                        </thead>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <button type="submit" class=" btn btn-outline-success"><i class=" bi bi-check-circle-fill"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    public Modelo modelo { get; set; } = new Modelo();
+    DateTime date { get; set; }
+
+    private async Task Guardar() { }
+   
+}
