@@ -41,6 +41,7 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
 
                     b.ToTable("Ciudades");
 
+
                     b.HasData(
                         new
                         {
@@ -86,6 +87,7 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
                     b.HasIndex("EncuestaId");
 
                     b.ToTable("Detalle");
+
                 });
 
             modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
@@ -98,12 +100,16 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
 
                     b.Property<string>("Asignatura")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CiudadId")
+                        .HasColumnType("int");
+
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
                     b.HasKey("EncuestaId");
+
 
                     b.ToTable("Encuesta");
                 });
@@ -112,9 +118,21 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
                 {
                     b.HasOne("Esmailin_Martinez_P2_AP1.Models.Ciudades", "Ciudades")
                         .WithMany("Detalles")
+=======
+                    b.HasIndex("CiudadId");
+
+                    b.ToTable("Encuesta");
+                });
+
+            modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
+                {
+                    b.HasOne("Esmailin_Martinez_P2_AP1.Models.Ciudades", "Ciudades")
+                        .WithMany()
+
                         .HasForeignKey("CiudadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
 
                     b.HasOne("Esmailin_Martinez_P2_AP1.Models.Encuesta", "Encuesta")
                         .WithMany("Detalle")
@@ -135,6 +153,8 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
             modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
                 {
                     b.Navigation("Detalle");
+                    b.Navigation("Ciudades");
+
                 });
 #pragma warning restore 612, 618
         }

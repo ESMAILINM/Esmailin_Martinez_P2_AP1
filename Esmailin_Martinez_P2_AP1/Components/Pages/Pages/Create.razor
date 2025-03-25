@@ -1,19 +1,19 @@
-﻿@page "/Modelo"
-@using Esmailin_Martinez_P2_AP1.Models
+﻿@page "/Encuesta/Create"
+@inject EncuestaService encuestaService
+@inject CiudadesService ciudadesService
 @rendermode InteractiveServer
 @inject NavigationManager navigationManager
 
-<PageTitle>Create Modelo</PageTitle>
+<PageTitle>Create Encuesta</PageTitle>
 
-<EditForm Model="modelo" OnValidSubmit="Guardar">
+<EditForm Model="encuesta" OnValidSubmit="Guardar">
     <DataAnnotationsValidator />
     <div class="container">
         <div class="card shadow-lg">
             <div class="card-header text-center">
-                <h5 class="card-title">Crear Modelo</h5>
+                <h5 class="card-title">Crear Encuesta</h5>
             </div>
             <div class="card-body">
-
                 <div class="mb-3 row">
                     @* Asignatura *@
                     <div class="mb-3 col-5">
@@ -23,7 +23,7 @@
                     @* Fecha *@
                     <div class="mb-3 col-3">
                         <label class="form-label"><strong>Fecha</strong></label>
-                        <InputDate @bind-Value="date" class="form-control"></InputDate>
+                        <InputDate @bind-Value="encuesta.Fecha" class="form-control" />
                     </div>
                 </div>
 
@@ -31,7 +31,12 @@
                 <div class="border border-success p-3 mt-3">
                     <h5>Detalle de Ciudades y Montos</h5>
                     <table class="table table-light">
-                        <thead class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Ciudad</th>
+                                <th>Monto</th>
+                                <th>Acción</th>
+                            </tr>
                         </thead>
                         <tbody>
                             @foreach (var ciudad in detalleCiudades)
@@ -71,7 +76,7 @@
             </div>
 
             <div class="card-footer text-center mt-2">
-                <button type="submit" class=" btn btn-outline-success"><i class=" bi bi-check-circle-fill"></i> Guardar</button>
+                <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
             </div>
         </div>
     </div>

@@ -16,7 +16,8 @@ var ConSrt = builder.Configuration.GetConnectionString("SqlConStr");
 builder.Services.AddDbContextFactory<Contexto>(o => o.UseSqlServer(ConSrt));
 
 //Inyectar del service
-builder.Services.AddScoped<Service>();
+builder.Services.AddScoped<CiudadesService>();
+builder.Services.AddScoped<EncuestaService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
