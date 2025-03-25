@@ -15,26 +15,58 @@
             <div class="card-body">
 
                 <div class="mb-3 row">
-                    @*Id*@
+                    @* Asignatura *@
                     <div class="mb-3 col-5">
-                        <label class="form-label"><strong>Id</strong></label>
-                        <InputNumber class="form-control" @bind-Value="modelo.Id" readonly />
+                        <label class="form-label"><strong>Asignatura</strong></label>
+                        <InputText class="form-control" @bind-Value="encuesta.Asignatura" />
                     </div>
-                    @*Fecha*@
+                    @* Fecha *@
                     <div class="mb-3 col-3">
                         <label class="form-label"><strong>Fecha</strong></label>
                         <InputDate @bind-Value="date" class="form-control"></InputDate>
                     </div>
                 </div>
 
-                @*Detalles*@
+                @* Detalles de las Ciudades y Montos *@
                 <div class="border border-success p-3 mt-3">
-                    <h5>Detalle</h5>
+                    <h5>Detalle de Ciudades y Montos</h5>
                     <table class="table table-light">
                         <thead class="table table-striped">
                         </thead>
-                        <tfoot></tfoot>
+                        <tbody>
+                            @foreach (var ciudad in detalleCiudades)
+                            {
+                                <tr>
+                                    <td>@ciudad.Nombre</td>
+                                    <td>@ciudad.Monto</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" @onclick="() => EliminarCiudad(ciudad)">Eliminar</button>
+                                    </td>
+                                </tr>
+                            }
+                            @* Fila para ingresar nueva ciudad y monto *@
+                            <tr>
+                                <td>
+                                    <select @bind="selectedCiudadId" class="form-control">
+                                        <option value="">Seleccione una ciudad</option>
+                                        @foreach (var ciudad in ciudadesList)
+                                        {
+                                            <option value="@ciudad.CiudadId">@ciudad.Nombre</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <InputNumber @bind-Value="monto" class="form-control" placeholder="Monto" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" @onclick="AgregarCiudad">Agregar</button>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
+                    <div class="text-end">
+                        <strong>Total:</strong> @TotalMonto.ToString("C")
+                    </div>
                 </div>
             </div>
 
@@ -46,9 +78,58 @@
 </EditForm>
 
 @code {
-    public Modelo modelo { get; set; } = new Modelo();
-    DateTime date { get; set; }
+    public Encuesta encuesta { get; set; } = new Encuesta();
+    public List<Ciudades> ciudadesList { get; set; } = new List<Ciudades>();
+    public List<Ciudades> detalleCiudades { get; set; } = new List<Ciudades>();
+    public int selectedCiudadId { get; set; }
+    public double monto { get; set; }
 
-    private async Task Guardar() { }
-   
+    protected override async Task OnInitializedAsync()
+    {
+        
+        ciudadesList.AddRange(new List<Ciudades>
+        {
+            new Ciudades { CiudadId = 1, Nombre = "Santo Domingo", Monto = 0 },
+            new Ciudades { CiudadId = 2, Nombre = "Punta Cana", Monto = 0 },
+            new Ciudades { CiudadId = 3, Nombre = "La Romana", Monto = 0 }
+        });
+    }
+
+    private void AgregarCiudad()
+    {
+        if (selectedCiudadId != 0 && monto > 0)
+        {
+            var ciudadSeleccionada = ciudadesList.FirstOrDefault(c => c.CiudadId == selectedCiudadId);
+            if (ciudadSeleccionada != null)
+            {
+                var ciudadExistente = detalleCiudades.FirstOrDefault(c => c.CiudadId == selectedCiudadId);
+
+                if (ciudadExistente != null)
+                {
+                    ciudadExistente.Monto += monto;
+                }
+                else
+                {
+                    detalleCiudades.Add(new Ciudades
+                        {
+                            CiudadId = ciudadSeleccionada.CiudadId,
+                            Nombre = ciudadSeleccionada.Nombre,
+                            Monto = monto
+                        });
+                }
+                selectedCiudadId = 0;
+                monto = 0;
+            }
+        }
+    }
+
+    private void EliminarCiudad(Ciudades ciudad)
+    {
+        detalleCiudades.Remove(ciudad);
+    }
+
+    private async Task Guardar()
+    {
+        await encuestaService.Guardar(encuesta);
+    }
 }
