@@ -4,6 +4,7 @@ using Esmailin_Martinez_P2_AP1.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Esmailin_Martinez_P2_AP1.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20250313051800_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +43,6 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
                     b.HasKey("CiudadId");
 
                     b.ToTable("Ciudades");
-
 
                     b.HasData(
                         new
@@ -87,7 +89,6 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
                     b.HasIndex("EncuestaId");
 
                     b.ToTable("Detalle");
-
                 });
 
             modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
@@ -100,16 +101,12 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
 
                     b.Property<string>("Asignatura")
                         .IsRequired()
-
-                    b.Property<int>("CiudadId")
-                        .HasColumnType("int");
-
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
 
                     b.HasKey("EncuestaId");
-
 
                     b.ToTable("Encuesta");
                 });
@@ -118,21 +115,9 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
                 {
                     b.HasOne("Esmailin_Martinez_P2_AP1.Models.Ciudades", "Ciudades")
                         .WithMany("Detalles")
-=======
-                    b.HasIndex("CiudadId");
-
-                    b.ToTable("Encuesta");
-                });
-
-            modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
-                {
-                    b.HasOne("Esmailin_Martinez_P2_AP1.Models.Ciudades", "Ciudades")
-                        .WithMany()
-
                         .HasForeignKey("CiudadId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
 
                     b.HasOne("Esmailin_Martinez_P2_AP1.Models.Encuesta", "Encuesta")
                         .WithMany("Detalle")
@@ -153,8 +138,6 @@ namespace Esmailin_Martinez_P2_AP1.Migrations
             modelBuilder.Entity("Esmailin_Martinez_P2_AP1.Models.Encuesta", b =>
                 {
                     b.Navigation("Detalle");
-                    b.Navigation("Ciudades");
-
                 });
 #pragma warning restore 612, 618
         }

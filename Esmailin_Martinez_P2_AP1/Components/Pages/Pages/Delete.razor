@@ -1,5 +1,93 @@
-﻿<h3>Delete</h3>
+
+@page "/Encuesta/Delete/{EncuestaId:int}"
+@inject EncuestaService encuestaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer 
+
+<PageTitle>Eliminar Encuesta</PageTitle>
+
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h5 class="card-title">Eliminar Encuesta</h5>
+        </div>
+        <div class="card-body">
+            @if (encuesta != null)
+            {
+                <p>¿Estás seguro de que deseas eliminar esta encuesta?</p>
+                <div>
+                    <strong>Asignatura:</strong> @encuesta.Asignatura
+                    <br />
+                    <strong>Fecha:</strong> @encuesta.Fecha.ToString("dd/MM/yyyy")
+                </div>
+            }
+            else
+            {
+                <p class="text-danger">¡Error! No se encontró la encuesta.</p>
+            }
+        </div>
+
+        <div class="card-footer text-center mt-2">
+            @if (encuesta != null)
+            {
+                <button class="btn btn-danger" @onclick="EliminarEncuesta">Eliminar</button>
+            }
+            <button class="btn btn-secondary" @onclick="VolverAtras">Cancelar</button>
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public int EncuestaId { get; set; }
 
-}
+    public Encuesta? encuesta { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        encuesta = await encuestaService.Buscar(EncuestaId);
+
+        if (encuesta == null)
+        {
+            navigationManager.NavigateTo("/Encuesta/Index");
+        }
+    }
+
+    private async Task EliminarEncuesta()
+    {
+        if (encuesta == null)
+        {
+            Console.WriteLine("No se encontró la encuesta.");
+            return;
+        }
+
+        try
+        {
+            // Verificar y eliminar detalles si existen
+            if (encuesta.Detalle != null && encuesta.Detalle.Any())
+            {
+                foreach (var detalle in encuesta.Detalle.ToList())
+                {
+                    Console.WriteLine($"Eliminando detalle ID: {detalle.DestallesId}");
+                    await encuestaService.EliminarDetalle(detalle.DestallesId);
+                }
+            }
+
+            // Intentar eliminar la encuesta
+            Console.WriteLine($"Eliminando encuesta ID: {encuesta.EncuestaId}");
+            await encuestaService.Eliminar(encuesta.EncuestaId);
+
+            // Redirigir después de eliminar
+            navigationManager.NavigateTo("/Encuesta/Index");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar la encuesta: {ex.Message}");
+        }
+    }
+
+    private void VolverAtras()
+    {
+        navigationManager.NavigateTo("/Encuesta/Index");
+    }
+

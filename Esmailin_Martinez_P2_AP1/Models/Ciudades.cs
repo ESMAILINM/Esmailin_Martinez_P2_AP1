@@ -12,6 +12,6 @@ namespace Esmailin_Martinez_P2_AP1.Models
         [Range(1, double.MaxValue, ErrorMessage = "Debe introducir un monto válido")]
         public double Monto { get; set; } = 0;
 
-        
+        public List<Detalle> Detalles { get; set; }
     }
 }

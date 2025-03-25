@@ -7,7 +7,7 @@ namespace Esmailin_Martinez_P2_AP1.Services
 {
     public class CiudadesService(IDbContextFactory<Contexto> DbFactory)
     {
-
+=======
         //1.Metodo Guardar
         public async Task<bool> Guardar(Ciudades ciudad)
         {
@@ -60,15 +60,19 @@ namespace Esmailin_Martinez_P2_AP1.Services
                 .ExecuteDeleteAsync() > 0;
         }
         //7.Metodo Listar
+
         public async Task<List<Ciudades>> Listar(Expression<Func<Ciudades, bool>> criterio)
         {
             await using var contexto = await DbFactory.CreateDbContextAsync();
             return await contexto.Ciudades
                 .Where(criterio)
+                .AsNoTracking()
                 .ToListAsync();
         }
+        
+ }
     }
-}
+
 
 
 

@@ -11,9 +11,6 @@ namespace Esmailin_Martinez_P2_AP1.Models
         [Required(ErrorMessage = "El campo Nombre no puede estar vacío")]
         public string Asignatura { get; set; }
         public DateTime Fecha { get; set; }= DateTime.Now;
-
-        public int CiudadId { get; set; }
-        [ForeignKey("CiudadId")]
-        public Ciudades Ciudades { get; set; }
+        public virtual ICollection<Detalle> Detalle { get; set; } = new List<Detalle>();
     }
 }

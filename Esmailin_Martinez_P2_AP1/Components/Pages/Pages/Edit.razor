@@ -1,5 +1,173 @@
-﻿<h3>Edit</h3>
+
+@page "/Encuesta/Edit/{EncuestaId:int}"
+@inject EncuestaService encuestaService
+@inject CiudadesService ciudadesService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<PageTitle>Editar Encuesta</PageTitle>
+
+<EditForm Model="encuesta" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h5 class="card-title">Editar Encuesta</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3 row">
+                    <div class="mb-3 col-5">
+                        <label class="form-label"><strong>Id</strong></label>
+                        <InputNumber class="form-control" @bind-Value="encuesta.EncuestaId" readonly />
+                    </div>
+                    <div class="mb-3 col-5">
+                        <label class="form-label"><strong>Asignatura</strong></label>
+                        <InputText class="form-control" @bind-Value="encuesta.Asignatura" />
+                    </div>
+                    <div class="mb-3 col-3">
+                        <label class="form-label"><strong>Fecha</strong></label>
+                        <InputDate @bind-Value="encuesta.Fecha" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="border border-success p-3 mt-3">
+                    <h5>Detalle de Ciudades</h5>
+                    <table class="table table-light">
+                        <thead>
+                            <tr>
+                                <th>Ciudad</th>
+                                <th>Monto</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detalle in detalleCiudades)
+                            {
+                                <tr>
+                                    <td>@detalle.Ciudades?.Nombre</td>
+                                    <td>@detalle.MontoEncuesta.ToString("C")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger" @onclick="() => EliminarDetalle(detalle)">Eliminar</button>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>
+                                    <select @bind="selectedCiudadId" class="form-control">
+                                        <option value="0">Seleccione una ciudad</option>
+                                        @foreach (var ciudad in ciudadesList)
+                                        {
+                                            <option value="@ciudad.CiudadId">@ciudad.Nombre</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td>
+                                    <InputNumber @bind-Value="monto" class="form-control" placeholder="Monto" />
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" @onclick="AgregarDetalle">Agregar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-end">
+                        <strong>Total:</strong> @TotalMonto.ToString("C")
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-center mt-2">
+                <button type="submit" class="btn btn-outline-success"><i class="bi bi-check-circle-fill"></i> Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
 
 @code {
+    [Parameter]
+    public int EncuestaId { get; set; }
+
+    public Encuesta encuesta { get; set; } = new Encuesta();
+    public List<Ciudades> ciudadesList { get; set; } = new List<Ciudades>();
+    public List<Detalle> detalleCiudades { get; set; } = new List<Detalle>();
+    public int selectedCiudadId { get; set; }
+    public double monto { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ciudadesList = await ciudadesService.Listar(a => true);
+        encuesta = await encuestaService.Buscar(EncuestaId);
+
+        if (encuesta != null)
+        {
+            detalleCiudades = encuesta.Detalle?.ToList() ?? new List<Detalle>();
+
+            
+            foreach (var detalle in detalleCiudades)
+            {
+                detalle.Ciudades = ciudadesList.FirstOrDefault(c => c.CiudadId == detalle.CiudadId);
+            }
+        }
+    }
+
+    private void AgregarDetalle()
+    {
+        if (selectedCiudadId != 0 && monto > 0)
+        {
+            var ciudadSeleccionada = ciudadesList.FirstOrDefault(c => c.CiudadId == selectedCiudadId);
+            if (ciudadSeleccionada != null)
+            {
+                var ciudadExistente = detalleCiudades.FirstOrDefault(c => c.CiudadId == selectedCiudadId);
+
+                if (ciudadExistente != null)
+                {
+                    ciudadExistente.MontoEncuesta += monto;
+                }
+                else
+                {
+                    detalleCiudades.Add(new Detalle
+                        {
+                            CiudadId = ciudadSeleccionada.CiudadId,
+                            Ciudades = ciudadSeleccionada,
+                            MontoEncuesta = monto
+                        });
+                }
+
+                selectedCiudadId = 0;
+                monto = 0;
+            }
+        }
+    }
+    private double TotalMonto => detalleCiudades.Sum(c => c.MontoEncuesta);
+
+    private async Task EliminarDetalle(Detalle detalle)
+    {
+        if (detalleCiudades.Contains(detalle))
+        {
+            // Elimina el detalle de la lista de detalles
+            detalleCiudades.Remove(detalle);
+
+            // Llamar al servicio para eliminar el detalle de la base de datos
+            await encuestaService.EliminarDetalle(detalle.DestallesId);
+
+            // Forzar la actualización de la vista
+            StateHasChanged();
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (encuesta != null)
+        {
+            // Actualiza la lista de detalles en la encuesta con los cambios realizados
+            encuesta.Detalle = new List<Detalle>(detalleCiudades);
+
+            // Guarda la encuesta actualizada con el nuevo detalle
+            await encuestaService.Guardar(encuesta);
+
+            // Redirige a la lista de encuestas después de guardar
+            navigationManager.NavigateTo("/Encuesta/Index");
+        }
 
 }
+
