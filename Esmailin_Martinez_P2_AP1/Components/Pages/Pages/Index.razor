@@ -1,5 +1,111 @@
-﻿<h3>Index</h3>
+﻿@page "/Encuesta/Index"
+@inject EncuestaService encuestaService
+@inject NavigationManager navigationManager
+@rendermode InteractiveServer
+
+<div class="container card shadow-lg">
+    <div class="card-header text-center">
+        <h3><strong>Encuestas</strong></h3>
+    </div>
+
+    @* Filtro *@
+    <div class="row text-right">
+        <div class="col-md-3">
+            <label for="filtro" class="form-label"><strong>Filtro:</strong></label>
+            <InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+                <option value="EncuestaId">Id</option>
+                <option value="Asignatura">Asignatura</option>
+                <option value="Fecha">Fecha</option>
+            </InputSelect>
+        </div>
+
+        @* Búsqueda *@
+        <div class="col-md-6">
+            <label for="valorFiltro" class="form-label"><strong>Búsqueda:</strong></label>
+            <div class="input-group">
+                <InputText id="valorFiltro" class="form-control" @bind-Value="valorFiltro" placeholder="Buscar"></InputText>
+                <button @onclick="Buscar" class="btn btn-success" type="button"><i class="bi bi-search"></i> Buscar</button>
+            </div>
+        </div>
+
+        @* Botón Crear *@
+        <div class="col-md-3 d-flex align-items-end justify-content-md-evenly mt-3 mt-md-0">
+            <a href="/Encuesta/Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Crear</a>
+        </div>
+    </div>
+
+    @* Tabla *@
+    <div class="card-body">
+        <table class="table table-light table-bordered">
+            <thead class="table-striped text-center">
+                <tr>
+                    <th>Id</th>
+                    <th>Fecha</th>
+                    <th>Asignatura</th>
+                    <th>Monto</th>
+                    <th>Eliminar</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var encuesta in encuestas)
+                {
+                    <tr>
+                        <td class="text-center">@encuesta.EncuestaId</td>
+                        <td class="text-center">@encuesta.Fecha.ToString("C")</td>
+                        <td class="text-center">@encuesta.Asignatura</td>
+                        <td class="text-center">@encuesta.Ciudades.Monto</td>
+                        <td class="text-center">
+                            <a href="/Encuesta/Delete/@encuesta.EncuestaId" class="btn btn-outline-danger bi bi-trash3"></a>
+                        </td>
+                        <td class="text-center">
+                            <a href="/Encuesta/Edit/@encuesta.EncuestaId" class="btn btn-outline-warning">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="card-footer">
+            <p><strong>Total: </strong>@encuestas?.Count</p>
+        </div>
+    </div>
+</div>
 
 @code {
+    public string filtro { get; set; } = "EncuestaId";
+    public List<Encuesta> encuestas { get; set; } = new List<Encuesta>();
+    public string valorFiltro { get; set; } = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        
+        encuestas = await encuestaService.Listar(a => true);
+    }
+
+    public async Task Buscar()
+    {
+        
+        if (!string.IsNullOrWhiteSpace(valorFiltro))
+        {
+            switch (filtro)
+            {
+                case "EncuestaId":
+                    if (int.TryParse(valorFiltro, out int id))
+                    {
+                        encuestas = await encuestaService.Listar(a => a.EncuestaId == id);
+                    }
+                    break;
+                case "Asignatura":
+                    encuestas = await encuestaService.Listar(a => a.Asignatura.ToLower().Contains(valorFiltro.ToLower()));
+                    break;
+               
+            }
+        }
+        else
+        {
+            encuestas = await encuestaService.Listar(a => true);
+        }
+    }
 }

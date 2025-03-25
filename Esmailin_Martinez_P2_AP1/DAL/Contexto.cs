@@ -8,6 +8,7 @@ namespace Esmailin_Martinez_P2_AP1.DAL
     {
         public Contexto(DbContextOptions<Contexto> options) : base(options) { }
 
-        public DbSet<Modelo> Modelo { get; set; }
+        public DbSet<Encuesta> Encuesta { get; set; }
+        public DbSet<Ciudades> Ciudades { get; set; }
     }
 }
